@@ -241,7 +241,7 @@ sub PLUGIN_CACHE_OPTIONS {
     my $self = shift;
     return {
         class => 'MusicBrainz::Server::CacheWrapper::Redis',
-        server => 'redis:6379',
+        server => "$ENV{REDIS_HOST}:6379",
         namespace => 'MB:Catalyst:',
     };
 }
@@ -256,7 +256,7 @@ sub CACHE_MANAGER_OPTIONS {
             external => {
                 class => 'MusicBrainz::Server::CacheWrapper::Redis',
                 options => {
-                    server => 'redis:6379',
+                    server => "$ENV{REDIS_HOST}:6379",
                     namespace => 'MB:',
                 },
             },
