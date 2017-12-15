@@ -58,7 +58,7 @@ MusicBrainz::Server::DatabaseConnectionFactory->register_databases(
         schema      => "musicbrainz",
         username    => "$ENV{POSTGRES_USER}",
         password    => "$ENV{POSTGRES_PASSWORD}",
-        host        => "db",
+        host        => "$ENV{POSTGRES_HOST}",
         port        => "5432",
     },
     # How to connect to a test database
@@ -75,7 +75,7 @@ MusicBrainz::Server::DatabaseConnectionFactory->register_databases(
         schema      => "musicbrainz",
         username    => "$ENV{POSTGRES_USER}",
         password    => "$ENV{POSTGRES_PASSWORD}",
-        host        => "db",
+        host        => "$ENV{POSTGRES_HOST}",
         port        => "5432",
     },
     # How to connect for administrative access
@@ -83,7 +83,7 @@ MusicBrainz::Server::DatabaseConnectionFactory->register_databases(
         database    => "template1",
         username    => "$ENV{POSTGRES_USER}",
         password    => "$ENV{POSTGRES_PASSWORD}",
-        host        => "db",
+        host        => "$ENV{POSTGRES_HOST}",
         port        => "5432",
     },
     # How to connect when running maintenance scripts located under admin/.
@@ -127,7 +127,7 @@ sub REPLICATION_TYPE { RT_SLAVE }
 # NOTE: DO NOT EXPOSE THIS ACCESS TOKEN PUBLICLY!
 #
 
-sub REPLICATION_ACCESS_TOKEN { "" }
+sub REPLICATION_ACCESS_TOKEN { "$ENV{REPLICATION_TOKEN}" }
 ################################################################################
 # GPG Signature
 ################################################################################
