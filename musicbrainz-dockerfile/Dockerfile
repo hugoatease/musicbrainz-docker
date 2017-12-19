@@ -49,6 +49,7 @@ ADD scripts/replication.sh /replication.sh
 ADD scripts/createdb.sh /createdb.sh
 ADD scripts/recreatedb.sh /recreatedb.sh
 ADD scripts/set-token.sh /set-token.sh
+COPY scripts/slave.sh /musicbrainz-server/admin/cron/slave.sh
 
 RUN cd /musicbrainz-server/ && npm install --only=production \
     && eval $( perl -Mlocal::lib) && /musicbrainz-server/script/compile_resources.sh
