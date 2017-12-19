@@ -18,5 +18,5 @@ fi
 
 # Notify the search servlet that indexes have changed
 if [ -n "$SERVLET_HOST" ] ; then
-    wget --quiet --spider $SERVLET_HOST/?reload
+    curl -s -o /dev/null $SERVLET_HOST/?reload
 fi
