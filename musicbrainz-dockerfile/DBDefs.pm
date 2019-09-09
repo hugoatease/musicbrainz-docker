@@ -33,9 +33,6 @@ use MusicBrainz::Server::DatabaseConnectionFactory;
 # Commented-out lines should generally have sane defaults; anything that's uncommented
 # probably needs personal attention.
 
-# Disable auto forking it is handled by superdaemon
-sub FORK_RENDERER { 0 }
-
 ################################################################################
 # Directories
 ################################################################################
@@ -54,8 +51,7 @@ sub MB_SERVER_ROOT    { "/musicbrainz-server" }
 MusicBrainz::Server::DatabaseConnectionFactory->register_databases(
     # How to connect when we need read-write access to the database
     READWRITE => {
-        database    => "musicbrainz",
-        schema      => "musicbrainz",
+        database    => "musicbrainz_db",
         username    => "$ENV{POSTGRES_USER}",
         password    => "$ENV{POSTGRES_PASSWORD}",
         host        => "$ENV{POSTGRES_HOST}",
@@ -69,10 +65,19 @@ MusicBrainz::Server::DatabaseConnectionFactory->register_databases(
 #       host            => "",
 #       port            => "",
     },
+    # How to connect to a Selenium test database. This database is created
+    # (and dropped) automatically by t/selenium.js, and uses the TEST
+    # database above as a template.
+    SELENIUM => {
+        database    => 'musicbrainz_selenium',
+        schema      => 'musicbrainz',
+        username    => 'musicbrainz',
+#       host        => "",
+#       port        => "",
+    },
     # How to connect for read-only access.  See "REPLICATION_TYPE" (below)
     READONLY => {
-        database    => "musicbrainz",
-        schema      => "musicbrainz",
+        database    => "musicbrainz_db",
         username    => "$ENV{POSTGRES_USER}",
         password    => "$ENV{POSTGRES_PASSWORD}",
         host        => "$ENV{POSTGRES_HOST}",
@@ -104,7 +109,7 @@ MusicBrainz::Server::DatabaseConnectionFactory->register_databases(
 # replication_control.current_schema_sequence.
 # This is required, there is no default in order to prevent it changing without
 # manual intervention.
-sub DB_SCHEMA_SEQUENCE { 24 }
+sub DB_SCHEMA_SEQUENCE { 25 }
 
 # What type of server is this?
 # * RT_MASTER - This is a master replication server.  Changes are allowed, and
@@ -158,7 +163,8 @@ sub REPLICATION_ACCESS_TOKEN { "$ENV{REPLICATION_TOKEN}" }
 sub WEB_SERVER                { "localhost:5000" }
 # Relevant only if SSL redirects are enabled
 # sub WEB_SERVER_SSL            { "localhost" }
-sub LUCENE_SERVER             { "search:8080" }
+sub SEARCH_SERVER             { "search:8080" }
+sub SEARCH_ENGINE             { "LUCENE" }
 # Used, for example, to have emails sent from the beta server list the
 # main server
 # sub WEB_SERVER_USED_IN_EMAIL  { my $self = shift; $self->WEB_SERVER }
@@ -242,7 +248,7 @@ sub PLUGIN_CACHE_OPTIONS {
     return {
         class => 'MusicBrainz::Server::CacheWrapper::Redis',
         server => "$ENV{REDIS_HOST}:6379",
-        namespace => 'MB:Catalyst:',
+        namespace => $self->CACHE_NAMESPACE . 'Catalyst:',
     };
 }
 
@@ -257,7 +263,7 @@ sub CACHE_MANAGER_OPTIONS {
                 class => 'MusicBrainz::Server::CacheWrapper::Redis',
                 options => {
                     server => "$ENV{REDIS_HOST}:6379",
-                    namespace => 'MB:',
+                    namespace => $self->CACHE_NAMESPACE,
                 },
             },
         },
@@ -294,7 +300,7 @@ sub DATASTORE_REDIS_ARGS {
     my $self = shift;
     return {
         database => 0,
-        namespace => 'MB:',
+        namespace => $self->CACHE_NAMESPACE,
         server => 'redis:6379',
         test_database => 1,
     };
@@ -368,9 +374,6 @@ sub DATASTORE_REDIS_ARGS {
 # sub COVER_ART_ARCHIVE_UPLOAD_PREFIXER { shift; sprintf("//%s.s3.us.archive.org/", shift) };
 # sub COVER_ART_ARCHIVE_DOWNLOAD_PREFIX { "//coverartarchive.org" };
 
-# Add a Google Analytics tracking code to enable Google Analytics tracking.
-# sub GOOGLE_ANALYTICS_CODE { '' }
-
 # Disallow OAuth2 requests over plain HTTP
 # sub OAUTH2_ENFORCE_TLS { my $self = shift; !$self->DB_STAGING_SERVER }
 
@@ -390,7 +393,7 @@ sub DEVELOPMENT_SERVER { 0 }
 # Please activate the officially approved languages here. Not every .po
 # file is active because we might have fully translated languages which
 # are not yet properly supported, like right-to-left languages
-# sub MB_LANGUAGES {qw()}
+sub MB_LANGUAGES { qw( de fr nl en ) }
 
 # Should the site fall back to browser settings when trying to set a language
 # (note: will still only use languages in MB_LANGUAGES)
@@ -406,6 +409,13 @@ sub DEVELOPMENT_SERVER { 0 }
 # http://about.validator.nu/#src for instructions.
 # sub HTML_VALIDATOR { 'http://validator.w3.org/nu/?out=json' }
 # local use example: sub HTML_VALIDATOR { 'http://localhost:8888?out=json' }
+
+# Set to 1 if you're a developer and plan to run tests locally. Never
+# enable in production.
+# sub USE_SET_DATABASE_HEADER { 0 }
+
+# Disable auto forking it is handled by superdaemon
+sub FORK_RENDERER { 0 }
 
 ################################################################################
 # Profiling
