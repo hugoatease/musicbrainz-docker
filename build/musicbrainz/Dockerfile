@@ -131,7 +131,11 @@ ENV BASH_ENV=/noninteractive.bash_env \
     # Needed for yarn to install production dependencies only
     NODE_ENV=production \
     POSTGRES_USER=musicbrainz \
-    POSTGRES_PASSWORD=musicbrainz
+    POSTGRES_PASSWORD=musicbrainz \
+    POSTGRES_HOST=postgres \
+    POSTGRES_PORT=5432 \
+    POSTGRES_DATABASE=musicbrainz_db
+
 
 RUN yarn install \
     && yarn cache clean \
