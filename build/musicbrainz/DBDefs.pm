@@ -265,7 +265,7 @@ sub CACHE_MANAGER_OPTIONS {
             external => {
                 class => 'MusicBrainz::Server::CacheWrapper::Redis',
                 options => {
-                    server => 'redis:6379',
+                    server => "$ENV{REDIS_HOST}:$ENV{REDIS_PORT}",
                     namespace => $self->CACHE_NAMESPACE,
                 },
             },
